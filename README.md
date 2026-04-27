@@ -1,38 +1,90 @@
-# EDUCORE / EDUERP
+# EDU-ERP01: Advanced Educational Resource Planning System
 
-We built this Educational ERP platform to provide a seamless, integrated portal for students, teachers, and administrators. Our focus was on creating a modern, high-performance web experience backed by robust Spring Boot authentication and a highly cohesive, interactive React frontend.
+A production-ready, full-stack Educational ERP system built with **Spring Boot 3**, **React + Vite**, and **MySQL**. This platform provides a seamless workflow for Teachers, Students, and Administrators with high-end UI/UX and secure authentication.
 
----
+## 🚀 Key Features
 
-## 🏗️ Key Architecture & Pages
+### 🔐 1. Secure Authentication & Authorization
+- **JWT-Based Security**: Fully implemented stateless authentication using JSON Web Tokens.
+- **Role-Based Access Control (RBAC)**: Distinct permissions for `STUDENT`, `TEACHER`, and `ADMIN`.
+- **Protected Routes**: Frontend routes are guarded by a custom `ProtectedRoute` component that validates roles and tokens.
+- **Auto-Session Management**: Tokens are stored in `localStorage` with automatic attachment to Axios requests via interceptors.
 
-### 1. Unified Landing Page (`Home.jsx` & `RoleCard.jsx`)
-- **Purpose**: We created this page as the main entry point to visually guide users into their respective portals.
-- **Key Mechanics**:
-  - `roles.map(...)` maps our layout arrays into dynamic, glassmorphic Role Cards.
-  - Features the massive interactive HTML5 `<canvas>` background driven by `BGPattern.jsx`, which leverages `requestAnimationFrame` and spring-physics equations to naturally repel grid particles away from the cursor.
+### 📚 2. Assignment Management (Teacher-Student Workflow)
+- **Teacher Portal**:
+    - Create assignments with titles, descriptions, due dates, and optional file attachments.
+    - View all created assignments.
+    - Monitor real-time student submissions.
+    - **Grading System**: Provide numeric grades (0-100) and personalized feedback.
+- **Student Portal**:
+    - View all available assignments with status indicators (Pending/Submitted/Graded).
+    - Upload work directly to the server.
+    - View instructor grades and feedback instantly once published.
 
-### 2. Authentication Flow (`Login.jsx`, `Register.jsx`, `AuthContext.jsx`)
-- **Purpose**: We designed this securely to handle sign-ins and new account creation while enforcing strict alignment to portal roles.
-- **Key Mechanics**:
-  - `AuthContext.jsx` provides the globally accessible asynchronous `login()` and `register()` hooks, directing data packets directly to our Java API endpoints (`/api/auth/login` and `/api/auth/signup`).
-  - Implements strict mismatch logic; checking if the retrieved `User.role` accurately authorizes them to access the portal they're logging into.
+### 🧑‍🏫 3. Academic & Institutional Management
+- **Real Student Data**: Removed all hard-coded mock data. Every student, teacher, and record is pulled directly from the MySQL database.
+- **Attendance Tracking**: Teachers can mark daily attendance (Present/Absent/Late) for registered students.
+- **Student Directory**: A comprehensive list of all registered users with status monitoring.
+- **Teacher Dashboard**: Real-time stats on students taught, assignments created, and upcoming schedules.
 
-### 3. Dashboard Layout (`DashboardLayout.jsx`, `Sidebar.jsx`, `Topbar.jsx`)
-- **Purpose**: We structured this modular component as the foundation for every internal page, ensuring navigation and headers remain unified across the platform.
-- **Key Mechanics**:
-  - The `getNavItems()` function within `Sidebar.jsx` dynamically provisions navigation options depending on the `role` stored in context.
-  - Utilizes translucent CSS layers (`bg-[#EDE3D2]/80 backdrop-blur-md`) enabling the coffee-latte grid matrix to run smoothly behind the application layer!
-
-### 4. Custom Portal Views (e.g. `StudentDashboard.jsx`, `Assignments.jsx`)
-- **Purpose**: We built these interactive pages for users to directly engage with system metrics, announcements, and task completion.
-- **Key Mechanics**:
-  - Implements local React state variables (`useState` and `useEffect`) to calculate and display modular statistics like GPA and pending uploads dynamically.
-  - Employs table grids seamlessly locked to the Latte palette parameters (`#F5EFE6`, `#E6D8C3`, and `#3E2C23`) to ensure perfect visual coherence down to the deepest view layers.
-
----
+### 🎨 4. Premium UI/UX Design
+- **Modern Aesthetics**: A "Latte-Inspired" premium color palette using HSL tailored colors.
+- **Responsive Layouts**: Fully adaptive designs for various screen sizes.
+- **Micro-Animations**: Smooth transitions, hover effects, and loading states using Lucide-React icons.
+- **Interactive Backgrounds**: Particle-based grid background that reacts to mouse movement.
 
 ## 🛠️ Technology Stack
-- **Frontend Layer**: React, Vite, Tailwind CSS, Lucide React (for embedded graphics).
-- **Backend Infrastructure**: Java, Spring Boot, Spring Security, Spring Data JPA.
-- **Database Architecture**: Connected to local MySQL instances configured via application properties.
+
+- **Backend**: Java 17+, Spring Boot 3.x, Spring Security, Spring Data JPA, Hibernate.
+- **Frontend**: React 18, Vite, Axios, Tailwind CSS, Lucide React, React Router 6.
+- **Database**: MySQL 8.x.
+- **Security**: JWT (jjwt library), BCrypt Password Encoding.
+
+## ⚙️ Setup & Installation
+
+### Backend Setup
+1. Navigate to the `backend` folder.
+2. Update `src/main/resources/application.properties` with your MySQL credentials:
+   ```properties
+   spring.datasource.url=jdbc:mysql://localhost:3306/fsad
+   spring.datasource.username=your_username
+   spring.datasource.password=your_password
+   ```
+3. Run the application:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+### Frontend Setup
+1. Navigate to the `frontend` folder.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📂 Project Structure
+```text
+EDU-ERP01/
+├── backend/                # Spring Boot Backend
+│   ├── src/main/java/      # Source code (Controllers, Services, Config)
+│   ├── src/main/resources/ # Configuration & Properties
+│   └── uploads/            # Local storage for assignment files
+├── frontend/               # React Frontend
+│   ├── src/pages/          # Feature-based pages (Student, Teacher, Admin)
+│   ├── src/services/       # API integration & Interceptors
+│   ├── src/context/        # Auth & State management
+│   └── src/components/     # Reusable UI components
+└── README.md
+```
+
+## 🛡️ Security Implementation
+- **CORS Config**: Configured to allow communication between `localhost:5173` and `localhost:8080`.
+- **Stateless Session**: Spring Security is configured to be stateless (`SessionCreationPolicy.STATELESS`) to leverage JWT.
+- **Exception Handling**: Global exception handler to manage API errors gracefully.
+
+---
+*Developed as part of the FSAD SEM-4 Project.*
