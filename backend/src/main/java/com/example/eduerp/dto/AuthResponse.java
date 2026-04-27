@@ -11,4 +11,5 @@ import com.example.eduerp.entity.User;
 public class AuthResponse {
     private String message;
     private User user;
+    private String token;
 }

@@ -30,6 +30,7 @@ themepatch2.js
 patch_profiles.js
 
 # IDEs and Editors
+.metadata/
 .idea/
 .vscode/
 *.swp

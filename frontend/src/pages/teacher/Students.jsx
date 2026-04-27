@@ -1,14 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
 import { Modal } from '../../components/Modal';
-import { studentsData } from '../../mock/students';
+import api from '../../services/api';
+import { User, Mail, Book, Hash, Search, Loader } from 'lucide-react';
 
 export const TeacherStudents = () => {
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState('');
 
-  const filtered = studentsData.filter((s) =>
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/students');
+      setStudents(response.data);
+    } catch (err) {
+      setError('Failed to fetch students.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filtered = students.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.email.toLowerCase().includes(search.toLowerCase())
   );
@@ -32,7 +52,7 @@ export const TeacherStudents = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#D2B48C]/40 bg-[#E6D8C3]">
-                {['Name', 'Enrollment ID', 'Department', 'Class', 'Email', 'Action'].map((h) => (
+                {['Name', 'Role', 'Status', 'Email', 'Action'].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-3 text-left font-mono text-xs tracking-widest uppercase text-[#3E2C23]"
@@ -43,15 +63,30 @@ export const TeacherStudents = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((student) => (
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="py-20 text-center">
+                    <Loader className="animate-spin h-8 w-8 text-[#A67B5B] mx-auto" />
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-20 text-center text-[#6F4E37] font-mono">No students found.</td>
+                </tr>
+              ) : filtered.map((student) => (
                 <tr
                   key={student.id}
                   className="border-b border-[#D2B48C]/40 hover:bg-[#E6D8C3] hover:border-l-4 hover:border-l-[#A67B5B] transition-all"
                 >
-                  <td className="px-4 py-3 text-[#3E2C23] text-sm">{student.name}</td>
-                  <td className="px-4 py-3 text-[#3E2C23] text-sm font-mono">{student.enrollmentId}</td>
-                  <td className="px-4 py-3 text-[#3E2C23] text-sm">{student.department}</td>
-                  <td className="px-4 py-3 text-[#3E2C23] text-sm">{student.classId}</td>
+                  <td className="px-4 py-3 text-[#3E2C23] text-sm font-bold">{student.name}</td>
+                  <td className="px-4 py-3 text-[#3E2C23] text-xs font-mono">{student.role}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded-sm text-[10px] font-mono font-bold tracking-widest uppercase ${
+                      student.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {student.status || 'ACTIVE'}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-[#6F4E37] text-sm">{student.email}</td>
                   <td className="px-4 py-3">
                     <button
@@ -59,9 +94,9 @@ export const TeacherStudents = () => {
                         setSelectedStudent(student);
                         setModalOpen(true);
                       }}
-                      className="text-[#A67B5B] hover:text-[#3E2C23] font-mono text-xs transition-colors"
+                      className="text-[#A67B5B] hover:text-[#3E2C23] font-mono text-xs transition-colors font-bold uppercase tracking-widest"
                     >
-                      View Details
+                      View
                     </button>
                   </td>
                 </tr>

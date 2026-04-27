@@ -11,16 +11,33 @@ export const TeacherDashboard = () => {
     announcementsPosted: 0,
   });
   const [todaySchedule, setTodaySchedule] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setStats({
-      todayClasses: getTodaySchedule().length,
-      pendingSubmissions: 12,
-      studentsTaught: 75,
-      announcementsPosted: 8,
-    });
+    fetchStats();
     setTodaySchedule(getTodaySchedule());
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const [studentsRes, assignmentsRes] = await Promise.all([
+        api.get('/students'),
+        api.get('/assignments')
+      ]);
+      
+      setStats({
+        todayClasses: getTodaySchedule().length,
+        pendingSubmissions: 0, // Would need a more complex query
+        studentsTaught: studentsRes.data.length,
+        announcementsPosted: assignmentsRes.data.length,
+      });
+    } catch (err) {
+      console.error('Failed to fetch stats');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <DashboardLayout>

@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../../components/DashboardLayout';
-import { studentsData } from '../../mock/students';
+import api from '../../services/api';
+import { Loader, Save, Search, User, BarChart3 } from 'lucide-react';
 
 export const TeacherGrades = () => {
   const [selectedClass, setSelectedClass] = useState('101');
   const [selectedSubject, setSelectedSubject] = useState('Data Structures');
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [grades, setGrades] = useState({});
 
-  const filteredStudents = studentsData.filter((s) => s.classId === selectedClass);
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/students');
+      setStudents(response.data);
+    } catch (err) {
+      console.error('Failed to fetch students');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGradeChange = (studentId, value) => {
     setGrades((prev) => ({ ...prev, [studentId]: value }));
@@ -76,12 +93,22 @@ export const TeacherGrades = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.map((student) => (
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="py-20 text-center">
+                    <Loader className="animate-spin h-8 w-8 text-[#A67B5B] mx-auto" />
+                  </td>
+                </tr>
+              ) : students.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-20 text-center text-[#6F4E37] font-mono">No students registered.</td>
+                </tr>
+              ) : students.map((student) => (
                 <tr
                   key={student.id}
                   className="border-b border-[#D2B48C]/40 hover:bg-[#E6D8C3] hover:border-l-4 hover:border-l-[#A67B5B] transition-all"
                 >
-                  <td className="px-4 py-3 text-[#3E2C23] text-sm">{student.name}</td>
+                  <td className="px-4 py-3 text-[#3E2C23] text-sm font-bold">{student.name}</td>
                   {[1, 2, 3].map((num) => (
                     <td key={num} className="px-4 py-3">
                       <input
@@ -91,12 +118,12 @@ export const TeacherGrades = () => {
                         onChange={(e) =>
                           handleGradeChange(`${student.id}-${num}`, e.target.value)
                         }
-                        className="w-20 bg-[#E6D8C3] border border-[#555] px-2 py-1 text-[#3E2C23] text-sm focus:border-[#A67B5B] focus:outline-none transition-colors"
+                        className="w-20 bg-[#F5EFE6] border border-[#D2B48C] px-2 py-1 text-[#3E2C23] text-sm focus:border-[#A67B5B] focus:outline-none transition-colors"
                         placeholder="0-100"
                       />
                     </td>
                   ))}
-                  <td className={`px-4 py-3 font-mono text-sm ${getPercentageColor(grades[student.id])}`}>
+                  <td className={`px-4 py-3 font-mono text-sm font-bold ${getPercentageColor(grades[student.id])}`}>
                     {grades[student.id] || '-'}
                   </td>
                 </tr>

@@ -1,27 +1,39 @@
 package com.example.eduerp.controller;
 
-import com.example.eduerp.entity.Submission;
-import com.example.eduerp.repository.SubmissionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.eduerp.dto.GradeRequestDTO;
+import com.example.eduerp.dto.SubmissionRequestDTO;
+import com.example.eduerp.dto.SubmissionResponseDTO;
+import com.example.eduerp.service.SubmissionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/submissions")
+@RequiredArgsConstructor
 public class SubmissionController {
 
-    @Autowired
-    private SubmissionRepository repository;
+    private final SubmissionService submissionService;
 
-    @GetMapping
-    public List<Submission> getAll() {
-        return repository.findAll();
+    // Student: Upload submission
+    @PostMapping
+    public ResponseEntity<SubmissionResponseDTO> submitAssignment(@Valid @RequestBody SubmissionRequestDTO dto) {
+        return ResponseEntity.ok(submissionService.submitAssignment(dto));
     }
 
-    @PostMapping
-    public Submission create(@RequestBody Submission item) {
-        if(item.getStatus() == null) item.setStatus("SUBMITTED");
-        return repository.save(item);
+    // Student: View their submitted assignments
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<List<SubmissionResponseDTO>> getSubmissionsByStudent(@PathVariable Long studentId) {
+        return ResponseEntity.ok(submissionService.getSubmissionsByStudent(studentId));
+    }
+
+    // Teacher: Grade submissions
+    @PutMapping("/{submissionId}/grade")
+    public ResponseEntity<SubmissionResponseDTO> gradeSubmission(
+            @PathVariable Long submissionId, 
+            @Valid @RequestBody GradeRequestDTO dto) {
+        return ResponseEntity.ok(submissionService.gradeSubmission(submissionId, dto));
     }
 }

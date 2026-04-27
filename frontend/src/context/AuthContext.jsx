@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -23,61 +24,44 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, selectedRole) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
+      const response = await api.post('/auth/login', { email, password });
+      const data = response.data;
 
-      if (response.ok && data.user) {
+      if (data.user && data.token) {
         if (data.user.role.toLowerCase() === selectedRole.toLowerCase()) {
           const userData = { id: data.user.id, email: data.user.email, name: data.user.name, role: selectedRole };
-          const backendToken = 'mock-token-' + Date.now(); // Replace when JWT is implemented in backend
-
+          
           setUser(userData);
           setRole(selectedRole);
-          setToken(backendToken);
+          setToken(data.token);
 
           localStorage.setItem('eduerp_user', JSON.stringify(userData));
           localStorage.setItem('eduerp_role', selectedRole);
-          localStorage.setItem('eduerp_token', backendToken);
+          localStorage.setItem('eduerp_token', data.token);
 
           return { success: true };
         } else {
           return { success: false, message: `Wrong credentials.\nThese credentials are registered in the ${data.user.role.toLowerCase()} role.` };
         }
       }
-      return { success: false, message: data.message || 'Invalid credentials. Please try again.' };
+      return { success: false, message: 'Invalid response from server.' };
     } catch (err) {
-      console.error("Login request failed", err);
-      return { success: false, message: 'Could not connect to the server.' };
+      return { success: false, message: err.message || 'Login failed.' };
     }
   };
 
   const register = async (name, email, password, confirmPassword, roleToRegister) => {
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          confirmPassword,
-          role: roleToRegister.toUpperCase()
-        })
+      const response = await api.post('/auth/signup', {
+        name,
+        email,
+        password,
+        confirmPassword,
+        role: roleToRegister.toUpperCase()
       });
-      const data = await response.json();
-
-      if (response.ok) {
-        return { success: true, message: data.message };
-      } else {
-        return { success: false, message: data.message || 'Registration failed.' };
-      }
+      return { success: true, message: response.data.message };
     } catch (err) {
-      console.error("Signup request failed", err);
-      return { success: false, message: 'Could not connect to the server.' };
+      return { success: false, message: err.message || 'Registration failed.' };
     }
   };
 
@@ -92,31 +76,20 @@ export const AuthProvider = ({ children }) => {
 
   const deleteAccount = async (id) => {
     try {
-      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        logout();
-        return { success: true };
-      }
-      return { success: false, message: 'Could not delete your account.' };
+      await api.delete(`/users/${id}`);
+      logout();
+      return { success: true };
     } catch (err) {
-      return { success: false, message: 'Network breakdown attempting delete.' };
+      return { success: false, message: err.message || 'Could not delete account.' };
     }
   };
 
   const updatePassword = async (id, oldPassword, newPassword) => {
     try {
-      const res = await fetch(`/api/users/${id}/password`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldPassword, newPassword })
-      });
-
-      if (res.ok) return { success: true };
-
-      const errorText = await res.text();
-      return { success: false, message: errorText || 'Could not update your password.' };
+      await api.put(`/users/${id}/password`, { oldPassword, newPassword });
+      return { success: true };
     } catch (err) {
-      return { success: false, message: 'Network breakdown attempting update.' };
+      return { success: false, message: err.message || 'Could not update password.' };
     }
   };
 
