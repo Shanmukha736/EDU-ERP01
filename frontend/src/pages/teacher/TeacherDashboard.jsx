@@ -25,8 +25,8 @@ export const TeacherDashboard = () => {
       setLoading(true);
       setError(null);
       const [studentsRes, assignmentsRes] = await Promise.all([
-        api.get('/students'),
-        api.get('/assignments')
+        api.get('/api/students'),
+        api.get('/api/assignments')
       ]);
       
       setStats({

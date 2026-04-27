@@ -24,8 +24,8 @@ export const StudentAssignments = () => {
     try {
       setLoading(true);
       const [asgRes, subRes] = await Promise.all([
-        api.get('/assignments'),
-        api.get(`/submissions/student/${user.id}`)
+        api.get('/api/assignments'),
+        api.get(`/api/submissions/student/${user.id}`)
       ]);
       setAssignments(asgRes.data);
       setSubmissions(subRes.data);
@@ -45,7 +45,7 @@ export const StudentAssignments = () => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await api.post('/files/upload', formData, {
+      const response = await api.post('/api/files/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setFile(response.data.fileDownloadUri);
@@ -64,7 +64,7 @@ export const StudentAssignments = () => {
 
     try {
       setLoading(true);
-      await api.post('/submissions', {
+      await api.post('/api/submissions', {
         assignmentId: selectedAssignment.id,
         studentId: user.id,
         fileUrl: file

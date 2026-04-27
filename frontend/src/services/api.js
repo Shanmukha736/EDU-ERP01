@@ -1,15 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+// Get base URL from environment variable, fallback to localhost, and trim trailing slash
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080').replace(/\/$/, "");
 
-console.log("API URL:", API_BASE_URL);
+console.log("Portal starting... API URL:", API_BASE_URL);
 
 if (!import.meta.env.VITE_API_URL && import.meta.env.PROD) {
-  console.error("VITE_API_URL is not defined in production environment!");
+  console.error("VITE_API_URL is not defined in production!");
 }
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL, // We will include /api prefix in the individual calls as requested
   headers: {
     'Content-Type': 'application/json',
   },
@@ -39,12 +40,10 @@ api.interceptors.response.use(
     console.error(`API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, error.response?.data || error.message);
     
     if (error.response) {
-      // Handle 401 Unauthorized errors (token expired, etc.)
       if (error.response.status === 401) {
         localStorage.removeItem('eduerp_token');
         localStorage.removeItem('eduerp_user');
         localStorage.removeItem('eduerp_role');
-        // Avoid redirect loop if already on login page
         if (!window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }

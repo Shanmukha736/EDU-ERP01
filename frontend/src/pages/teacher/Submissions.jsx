@@ -32,7 +32,7 @@ export const Submissions = () => {
   const fetchAllAssignments = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/assignments');
+      const response = await api.get('/api/assignments');
       setAllAssignments(response.data);
     } catch (err) {
       setError('Failed to load assignments.');
@@ -45,8 +45,8 @@ export const Submissions = () => {
     try {
       setLoading(true);
       const [asgRes, subRes] = await Promise.all([
-        api.get(`/assignments/${assignmentId}`),
-        api.get(`/assignments/${assignmentId}/submissions`)
+        api.get(`/api/assignments/${assignmentId}`),
+        api.get(`/api/assignments/${assignmentId}/submissions`)
       ]);
       setAssignment(asgRes.data);
       setSubmissions(subRes.data);
@@ -65,7 +65,7 @@ export const Submissions = () => {
 
     try {
       setGrading(true);
-      await api.put(`/submissions/${selectedSubmission.id}/grade`, {
+      await api.put(`/api/submissions/${selectedSubmission.id}/grade`, {
         grade: parseFloat(gradeData.grade),
         feedback: gradeData.feedback
       });

@@ -19,7 +19,7 @@ export const TeacherStudents = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/students');
+      const response = await api.get('/api/students');
       setStudents(response.data);
     } catch (err) {
       setError('Failed to fetch students.');

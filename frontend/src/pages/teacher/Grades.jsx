@@ -17,7 +17,7 @@ export const TeacherGrades = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/students');
+      const response = await api.get('/api/students');
       setStudents(response.data);
     } catch (err) {
       console.error('Failed to fetch students');

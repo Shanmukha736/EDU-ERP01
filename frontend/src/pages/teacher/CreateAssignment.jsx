@@ -25,7 +25,7 @@ export const CreateAssignment = () => {
   const fetchAssignments = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/assignments/teacher/${user.id}`);
+      const response = await api.get(`/api/assignments/teacher/${user.id}`);
       setAssignments(response.data);
     } catch (err) {
       setError('Failed to load assignments');
@@ -47,7 +47,7 @@ export const CreateAssignment = () => {
         teacherId: user.id,
         dueDate: new Date(formData.dueDate).toISOString(),
       };
-      await api.post('/assignments', payload);
+      await api.post('/api/assignments', payload);
       fetchAssignments();
       setModalOpen(false);
       setFormData({ title: '', description: '', dueDate: '', fileUrl: '' });

@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, selectedRole) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/api/auth/login', { email, password });
       const data = response.data;
 
       if (data.user && data.token) {
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password, confirmPassword, roleToRegister) => {
     try {
-      const response = await api.post('/auth/signup', {
+      const response = await api.post('/api/auth/signup', {
         name,
         email,
         password,
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
 
   const deleteAccount = async (id) => {
     try {
-      await api.delete(`/users/${id}`);
+      await api.delete(`/api/users/${id}`);
       logout();
       return { success: true };
     } catch (err) {
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
 
   const updatePassword = async (id, oldPassword, newPassword) => {
     try {
-      await api.put(`/users/${id}/password`, { oldPassword, newPassword });
+      await api.put(`/api/users/${id}/password`, { oldPassword, newPassword });
       return { success: true };
     } catch (err) {
       return { success: false, message: err.message || 'Could not update password.' };

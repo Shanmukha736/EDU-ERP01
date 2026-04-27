@@ -18,7 +18,7 @@ export const MarkAttendance = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/students');
+      const response = await api.get('/api/students');
       setStudents(response.data);
       
       // Initialize attendance
